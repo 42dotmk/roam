@@ -10,6 +10,25 @@
 * Install 
 
 * How to use
+  Roam by default will use your existing org-roam database from emacs located at `~/.config/emacs/.local/cache/org-roam.db`.
+  If you want to use a different database you can set this in your `init.lua` file like this:
+    #+BEGIN_SRC lua
+    require('roam').setup {
+      database = "/path/to/your/org-roam.db"
+    }
+    #+END_SRC
+
+** Commands
+   Roam exposes only two commands for now:
+    - `RoamSearch` : This will open a telescope window with the search results
+    - `RoamOpenId` : This will open the file with the id under the cursor
+
+** Keybindings
+    You can set your own keybindings like this:
+    #+BEGIN_SRC lua
+    vim.api.nvim_set_keymap('n', '<leader>rs', '<cmd>RoamSearch<CR>', { noremap = true, silent = true })
+    vim.api.nvim_set_keymap('n', '<leader>ro', '<cmd>RoamOpenId<CR>', { noremap = true, silent = true })
+    #+END_SRC
 
 * Progress
     - [X] Implement the search
