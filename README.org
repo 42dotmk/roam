@@ -22,7 +22,7 @@
   If you want to use a different database you can set this in your ~init.lua~ file like this:
     #+BEGIN_SRC lua
     require('roam').setup {
-      database = "/path/to/your/org-roam.db"
+      dbPath = "/path/to/your/org-roam.db"
     }
     #+END_SRC
 
