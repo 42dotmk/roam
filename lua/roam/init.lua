@@ -12,7 +12,13 @@ local M = {
 }
 
 --[[
-    Opens the sqlite database at the given path
+  Setup the pluing with the given options
+  and registers the commands
+    Args:
+    - opts: table: The options for the plugin
+        - dbPath: string: The path to the sqlite database
+    
+
 ]]
 M.setup = function(opts)
     M.config = opts or {}
