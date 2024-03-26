@@ -1,0 +1,29 @@
+* About 
+  - roam is a plugin that reimplements [[https://www.orgroam.com/][org-roam]] in neovim by using the same database model.
+    so you can easily switch between org-roam in emacs and roam  in neovim.
+
+  - It depends on the great [[https://github.com/nvim-orgmode/orgmode][orgmode]] plugin by [[https://github.com/kristijanhusak][Kristijan Husak]]
+* Status
+    This are the very early stages of the plugin, so expect bugs and missing features.
+    I dont yet have a proper readme as you can see bellow.
+
+* Install 
+
+* How to use
+
+* Progress
+    - [X] Implement the search
+    - [X] Create vim commands for search and GoTo link
+    - [X] Insert link under cursor (`C-k` in telescope does this now)
+    - [X] Fix the goto links
+
+    - [ ] Register new file in Roam
+          - We should be able to get the info from the OrgApi
+          - set and Id property or read the id if it already exists
+          - save/update this id in the roam db
+          - Create new roam document with the title under the cursor (it should popup a prompt to choose which template to use)
+
+    - [ ] Purge/Sync database
+          - Purge should cleanup the whole database
+          - Sync should go through every file in the roam folder and update the database
+          - It should also create ids,titles for files that do not have these properties
