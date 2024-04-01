@@ -1,6 +1,7 @@
 local sqlite = require "sqlite.db" --- for constructing sql databases
 local helpers = require "roam.helpers"
-local M = {
+
+local RoamStorage = {
     ready = false,
     db = nil,
 }
@@ -10,7 +11,7 @@ local M = {
     Returns:
     - table: A table of nodes :
 ]]
-function M:nodes()
+function RoamStorage:nodes()
     return self.db:eval("SELECT * from nodes")
 end
 
@@ -19,15 +20,29 @@ end
     Returns:
     - table: A table of files
 ]]
-function M:files()
+function RoamStorage:files()
     return self.db:eval("SELECT * from files")
 end
 
-function M:insert_node(id, title, file)
+--[[
+    Inserts a new node into the database
+    Args:
+    - id: string: The id of the node
+    - title: string: The title of the node
+    - file: string: The file path of the node
+]]
+function RoamStorage:insert_node(id, title, file)
     self.db:eval("INSERT INTO nodes (id, title, file) VALUES ('" .. id .. "', '" .. title .. "', '" .. file .. "')")
 end
 
-function M:insert_file(id, title, file)
+--[[
+    Inserts a new file into the database
+    Args:
+    - id: string: The id of the node
+    - title: string: The title of the node
+    - file: string: The file path of the node
+]]
+function RoamStorage:insert_file(id, title, file)
     self.db:eval("INSERT INTO files (id, title, file) VALUES ('" .. id .. "', '" .. title .. "', '" .. file .. "')")
 end
 
@@ -38,7 +53,7 @@ end
     Returns:
     - string: The file path of the node
 ]]
-function M:get_by_id(id)
+function RoamStorage:get_by_id(id)
     local res = self.db:eval("SELECT * FROM 'nodes' WHERE id='\"" .. id .. "\"' LIMIT 1")
     if #res == 0 then
         return nil
@@ -46,7 +61,7 @@ function M:get_by_id(id)
     return res[1].file
 end
 
-function M:initialize_db(db_path)
+function RoamStorage:initialize_db(db_path)
     local db = sqlite:open(db_path)
     -- Create the nodes table if it does not exist
     db:eval("CREATE TABLE IF NOT EXISTS nodes (id TEXT PRIMARY KEY, title TEXT, file TEXT)")
@@ -61,18 +76,18 @@ function M:initialize_db(db_path)
     return db
 end
 
-function M:load(db_path)
+function RoamStorage:load(db_path)
     if (self.db ~= nil) then
         self.db:close()
     end
-    if not helpers.file_exists(db_path) then
-        print("Database file not found, initializing")
-        self.db = M.initialize_db(db_path)
+    if not helpers:file_exists(db_path) then
+        print("Roam: Database file not found, initializing new database")
+        self.db = RoamStorage.initialize_db(db_path)
+        print("Roam: Database initialized on path: " .. db_path)
     else
         self.db = sqlite:open(db_path)
-        print("Database file found, loading")
     end
     self.ready = true
 end
 
-return M
+return RoamStorage

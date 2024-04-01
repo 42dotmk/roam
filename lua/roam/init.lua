@@ -3,9 +3,11 @@ local sorters = require "telescope.sorters"
 local finders = require "telescope.finders"
 local actions_state = require "telescope.actions.state"
 local actions = require "telescope.actions"
-local strip = function(obj) return string.gsub(obj, "\"", "") end
-local storage = require("./storage")
-local M = {
+
+local strip_quotes = function(obj) return string.gsub(obj, "\"", "") end
+
+local storage = require("roam.storage")
+local Roam = {
     db = nil,
     config = {
         roam_dir = vim.fn.expand("~/org"),
@@ -21,10 +23,10 @@ local M = {
         - db_path: string: The path to the sqlite database
 
 ]]
-M.setup = function(opts)
+Roam.setup = function(opts)
     opts = opts or {}
-    M.config = vim.tbl_extend("force", M.config, opts)
-    storage.load(M.config.db_path)
+    Roam.config = vim.tbl_extend("force", Roam.config, opts)
+    storage:load(Roam.config.db_path)
     vim.cmd [[command! RoamSearch lua require('roam').search()]]
     vim.cmd [[command! RoamOpenId lua require('roam').goto_id_under_cursor()]]
 end
@@ -33,18 +35,18 @@ end
 --[[
     Opens a new telescope picker with the results from the database
 ]]
-M.search = function(opts)
+Roam.search = function(opts)
     opts = opts or {}
     pickers.new(opts, {
         prompt_title = "Roam Search",
         finder = finders.new_table {
-            results = storage.nodes(),
+            results = storage:nodes(),
             entry_maker = function(entry)
                 return {
                     value = entry,
-                    display = strip(entry.title),--entry.title,
-                    ordinal = strip(entry.title .. " " .. entry.file),
-                    filename = strip(entry.file)
+                    display = strip_quotes(entry.title),--entry.title,
+                    ordinal = strip_quotes(entry.title .. " " .. entry.file),
+                    filename = strip_quotes(entry.file)
                 }
             end
         },
@@ -53,7 +55,7 @@ M.search = function(opts)
             map({"i", "n"}, "<C-k>", function()
                 local entry = actions_state.get_selected_entry(prompt_bufnr).value
                 actions.close(prompt_bufnr)
-                local val = "[[id:".. strip(entry.id) .. "][" .. strip(entry.title) .."]]"
+                local val = "[[id:".. strip_quotes(entry.id) .. "][" .. strip_quotes(entry.title) .."]]"
                 vim.api.nvim_put({val}, "c", true, true)
                 -- print(entry)
             end)
@@ -67,29 +69,29 @@ end
     Args:
     - id: string: The id of the node
 ]]
-M.open_id = function(id)
+Roam.open_id = function(id)
     local file = storage.get_by_id(id)
     if file == nil then
         print("No file found for id: " .. id)
         return
     end
-    local cmd = "e " .. strip(file)
+    local cmd = "e " .. strip_quotes(file)
     vim.cmd(cmd)
 end
 
 --[[
     Opens the file for the id under the cursor in a new buffer
 ]]
-M.goto_id_under_cursor = function()
+Roam.goto_id_under_cursor = function()
     local str = vim.fn.expand('<cWORD>')
     local id = string.match(str, "id:([%w%-]+)")
     if id == nil then
         print("No id found")
         return
     end
-    M.open_id(id)
+    Roam.open_id(id)
 end
 
 
-M.setup()
-return M
+Roam.setup()
+return Roam
