@@ -70,7 +70,7 @@ end
     - id: string: The id of the node
 ]]
 Roam.open_id = function(id)
-    local file = storage.get_by_id(id)
+    local file = storage:get_by_id(id)
     if file == nil then
         print("No file found for id: " .. id)
         return
