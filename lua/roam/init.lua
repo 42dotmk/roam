@@ -7,12 +7,16 @@ local actions = require "telescope.actions"
 local strip_quotes = function(obj) return string.gsub(obj, "\"", "") end
 
 local storage = require("roam.storage")
+
+local config = {
+    roam_dir = vim.fn.expand("~/org"),
+    db_path = vim.fn.expand("~/.config/emacs/.local/cache/org-roam.db"),
+    add_link_keymap = "<C-k>"
+}
+
 local Roam = {
     db = nil,
-    config = {
-        roam_dir = vim.fn.expand("~/org"),
-        db_path = vim.fn.expand("~/.config/emacs/.local/cache/org-roam.db")
-    }
+    config = config
 }
 
 --[[
@@ -25,6 +29,15 @@ local Roam = {
 ]]
 Roam.setup = function(opts)
     opts = opts or {}
+    if opts.db_path == nil then
+        print("Roam: db_path is required")
+        return
+    end
+    -- check if db exists
+    if vim.fn.filereadable(opts.db_path) == 0 then
+        print("Roam: db_path does not exist")
+        return
+    end
     Roam.config = vim.tbl_extend("force", Roam.config, opts)
     storage:load(Roam.config.db_path)
     vim.cmd [[command! RoamSearch lua require('roam').search()]]
@@ -44,7 +57,7 @@ Roam.search = function(opts)
             entry_maker = function(entry)
                 return {
                     value = entry,
-                    display = strip_quotes(entry.title),--entry.title,
+                    display = strip_quotes(entry.title), --entry.title,
                     ordinal = strip_quotes(entry.title .. " " .. entry.file),
                     filename = strip_quotes(entry.file)
                 }
@@ -52,11 +65,11 @@ Roam.search = function(opts)
         },
         sorter = sorters.get_generic_fuzzy_sorter(),
         attach_mappings = function(prompt_bufnr, map)
-            map({"i", "n"}, "<C-k>", function()
-                local entry = actions_state.get_selected_entry(prompt_bufnr).value
+            map({ "i", "n" }, Roam.config.add_link_keymap, function()
+                local entry = actions_state.get_selected_entry().value
                 actions.close(prompt_bufnr)
-                local val = "[[id:".. strip_quotes(entry.id) .. "][" .. strip_quotes(entry.title) .."]]"
-                vim.api.nvim_put({val}, "c", true, true)
+                local val = "[[id:" .. strip_quotes(entry.id) .. "][" .. strip_quotes(entry.title) .. "]]"
+                vim.api.nvim_put({ val }, "c", true, true)
                 -- print(entry)
             end)
             return true
