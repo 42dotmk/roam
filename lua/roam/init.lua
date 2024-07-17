@@ -29,15 +29,6 @@ local Roam = {
 ]]
 Roam.setup = function(opts)
     opts = opts or {}
-    if opts.db_path == nil then
-        print("Roam: db_path is required")
-        return
-    end
-    -- check if db exists
-    if vim.fn.filereadable(opts.db_path) == 0 then
-        print("Roam: db_path does not exist")
-        return
-    end
     Roam.config = vim.tbl_extend("force", Roam.config, opts)
     storage:load(Roam.config.db_path)
     vim.cmd [[command! RoamSearch lua require('roam').search()]]
